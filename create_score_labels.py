@@ -12,8 +12,16 @@ def create_score_labels(dataset,
                         model_names_dict, # contains the names of the all model versions 
                         path_templates_dict,
                         record_dir,
+                        median_split_dataset = None, # split used for training of the score model 
                         project_root = '/lotterlab/users/khoebel/xray_generalization'
                         ):
+    # sort the splits list s.t. the median_split_dataset (if defined) is first
+    # print(splits)
+    if median_split_dataset is not None: 
+        assert (median_split_dataset in splits), 'median split dataset needs to be in splits list'
+        splits.insert(0, splits.pop(splits.index(median_split_dataset)))
+    # print(splits)
+
     for split in splits:
         dataset_pred_dfs = list()
         for model_train_dataset in ['mmc','cxp']:
@@ -49,7 +57,9 @@ def create_score_labels(dataset,
         
         # binarize 
         path_sign_idx = dataset_pred_df[path_sign.capitalize()]==1
-        median_score = dataset_pred_df.loc[path_sign_idx,'Score_Diff'].median()
+        if (median_split_dataset is None) or (split == median_split_dataset):
+            median_score = dataset_pred_df.loc[path_sign_idx,'Score_Diff'].median()
+        print(split, median_score)
         dataset_pred_df['Higher_Score'] = ['CXP' if a >= median_score else 'MMC' for a in dataset_pred_df['Score_Diff'].values]
         
         # read in the pathology dataset csv
@@ -92,17 +102,17 @@ if __name__ == "__main__":
                               'save': 'data/splits/{0}/{1}/{2}/{3}{4}.csv'
                               }
         
-        train_split = str(0.7)
+        train_split = str(0.35)
         path_sign = 'pneumothorax'
 
-        model_names_dict = {'cxp': ['cxp_densenet_pretrained_v2-best', 
-                                    'cxp_densenet_pretrained_v3-best', 
-                                    'cxp_densenet_pretrained_v4-best'], 
-                            'mmc': ['mimic_densenet_pretrained_v2-best', 
-                                    'mimic_densenet_pretrained_v3-best', 
-                                    'mimic_densenet_pretrained_v4-best']}
+        model_names_dict = {'cxp': ['cxp_densenet_pretrained_0.35-best', 
+                                    'cxp_densenet_pretrained_0.35_seed_1-best', 
+                                    'cxp_densenet_pretrained_0.35_seed_1-best'], 
+                            'mmc': ['mmc_densenet_pretrained_0.35-best', 
+                                    'mmc_densenet_pretrained_0.35_seed_1-best', 
+                                    'mmc_densenet_pretrained_0.35_seed_2-best']}
 
-        splits = ['test', 'val']
+        splits = ['test', 'val', 'train_score']
 
         for dataset in ['cxp', 'mmc']:
         
@@ -115,5 +125,6 @@ if __name__ == "__main__":
                         model_names_dict, # contains the names of the all model versions 
                         path_templates_dict,
                         record_dir,
+                        median_split_dataset = 'train_score',
                         project_root = '/lotterlab/users/khoebel/xray_generalization'
                         )
