@@ -29,7 +29,7 @@ def read_dataset_df(dataset:str,
                     file_name_modifier: str,
                     split: str,
                     prediction_target: str,
-                    path_template = 'data/splits/{0}/{1}/pathology/{2}{3}.csv',
+                    path_template = None,
                     project_root= '/lotterlab/users/khoebel/xray_generalization'
                    ):
     # reads in the dataset spreadsheet for the specified dataset and split 
