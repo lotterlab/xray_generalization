@@ -1,4 +1,5 @@
-import os 
+import os
+import pdb
 import pandas as pd
 
 
@@ -8,7 +9,8 @@ def read_prediction_df(dataset:str,
                        split: str, 
                        prediction_target: str,
                        path_template = None,
-                       project_root= '/lotterlab/users/khoebel/xray_generalization'
+                       project_root= '/lotterlab/users/khoebel/xray_generalization',
+                       merge_labels=True
                       ):
     # reads in the prediction for the specified dataset and model 
     # dataset: prediction dataset ('mmc', 'cxp')
@@ -18,10 +20,34 @@ def read_prediction_df(dataset:str,
     # prediction target: pathology or target label for higher score prediction (e.g. pneumothorax)
 
     if path_template is None:
-        path_template = 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/pred_{0}-{3}_df.csv'
+        path_template = 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/{0}-{3}.csv'
     path = os.path.join(project_root,path_template.format(dataset, train_split, model, split, prediction_target))
-    
-    return pd.read_csv(path)
+
+    pred_df = pd.read_csv(path)
+    # add some standardized columns for ease of use
+    if dataset == 'cxp':
+        pred_df['orig_path'] = [p.replace('/lotterlab/datasets/', '') for p in pred_df.Path.values]
+        study_ids = []
+        for p in pred_df.Path.values:
+            vals = p.split('/')
+            study_ids.append(vals[-3] + '-' + vals[-2])
+        pred_df['study_id'] = study_ids
+    else:
+        pred_df['dicom_id'] = [p.split('/')[-1][:-4] for p in pred_df.Path.values]
+        pred_df['study_id'] = [p.split('/')[-2] for p in pred_df.Path.values]
+
+    if merge_labels: #TODO
+        pass
+        # file_name_mod = '' if dataset == 'cxp' else 'meta'
+        # pdb.set_trace()
+        # data_df = read_dataset_df(dataset, train_split, file_name_mod, split, prediction_target)
+        # if dataset_name == 'cxp':
+        #     merge_df = pd.merge(pred_df, gt_df, how='left', left_on='orig_path', right_index=True)
+        # else:
+        #     # TODO
+        #     pdb.set_trace()
+
+    return pred_df
 
 
 def read_dataset_df(dataset:str,
