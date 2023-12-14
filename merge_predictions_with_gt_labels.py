@@ -139,12 +139,12 @@ if __name__ == '__main__':
     os.environ['CUDA_VISIBLE_DEVICES'] = '3'
     prediction_mode = 'higher_score' # 'higher_score', 'pathology'
     
-    splits = ['train_score', 'val', 'test']
+    splits = ['val', 'test'] # 'train_score'
 
-    
+    model_keys= ['mmc', 'cxp']
      # .35 score model
     
-    model_keys= ['mmc', 'cxp']
+    '''
     
 
     model_name_dict = {'mmc': ['mmc_score_0.35_seed_1'], # list of all names of models for inference
@@ -154,24 +154,24 @@ if __name__ == '__main__':
 
     project_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/data/splits/mmc/0.35/pneumothorax",
                         'cxp': "/lotterlab/users/khoebel/xray_generalization/data/splits/cxp/0.35/pneumothorax"
-                        }
+                        }'''
     
 
     # .7 score model
     
-    '''model_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/pneumothorax",
-                      # 'cxp': "/lotterlab/users/khoebel/xray_generalization/models/cxp/0.7/pneumothorax"
+    model_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/pneumothorax",
+                      'cxp': "/lotterlab/users/khoebel/xray_generalization/models/cxp/0.7/pneumothorax"
                       }
     
 
     model_name_dict = {'mmc': ['mmc_score_0.7_seed_1'], # list of all names of models for inference
-                       # 'cxp': ['cxp_score_0.7_seed_1']
+                       'cxp': ['cxp_score_0.7_seed_1']
                        }
     
 
     project_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/data/splits/mmc/0.7/pneumothorax",
                         'cxp': "/lotterlab/users/khoebel/xray_generalization/data/splits/cxp/0.7/pneumothorax"
-                        }'''
+                        }
 
     # loop through project directories (i.e., datasets to run prediction on)
     for dataset in ['cxp', 'mmc']:

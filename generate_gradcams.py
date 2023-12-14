@@ -20,7 +20,7 @@ from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
 
 from utils import read_prediction_df
-
+from pycrumbs import tracked
 
 def perform_xrv_preprocessing(im_path):
     img = skimage.io.imread(im_path)
@@ -97,8 +97,10 @@ def load_cam_model(orig_model_path):
 
 
 # TODO: add some config of who ran etc (pycrumbs)
+@tracked(directory_parameter='record_dir')
 def run_cam_generation(model_name, model_path, train_split, cam_dataset, prediction_type,
-                       pred_label, cam_split='val', n_cams=50):
+                       pred_label, cam_split='val', n_cams=50,
+                       record_dir=None):
 
     cam_model = load_cam_model(model_path)
 
@@ -157,12 +159,20 @@ def run_cam_generation(model_name, model_path, train_split, cam_dataset, predict
 
 
 if __name__ == '__main__':
-    model_name = 'cxp_score_0.7_seed_1-best'
-    model_path = '/lotterlab/users/khoebel/xray_generalization/models/cxp/0.7/pneumothorax/cxp_score_0.7_seed_1/chex-densenet-cxp_score_0.7_seed_1-best.pt'
+    model_name = 'mmc_score_0.7_seed_1-best'
+    model_path = '/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/pneumothorax/mmc_score_0.7_seed_1/mimic_ch-densenet-mmc_score_0.7_seed_1-best.pt'
     train_split = 0.7
-    cam_dataset = 'cxp'
+    cam_dataset = 'mmc'
     prediction_type = 'higher_score'
-    pred_label = 'CXP'
+    pred_label = 'MMC'
     cam_split = 'val'
+
+    # ToDo: move inside function (for pycrumbs documentation)
+    base_out_dir = '/lotterlab/project_data/cxr_generalization/grad_cams/'
+    model_folder = f'{model_name}_{train_split}'
+    cam_folder = f'camdata-{cam_dataset}-{cam_split}_pred-{pred_label}'
+    record_dir = os.path.join(base_out_dir, model_folder, cam_folder)
+
     run_cam_generation(model_name, model_path, train_split, cam_dataset, prediction_type,
-                       pred_label, cam_split)
+                       pred_label, cam_split,
+                       record_dir = record_dir)
