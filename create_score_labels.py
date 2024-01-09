@@ -14,7 +14,7 @@ def create_score_labels(dataset,
                         path_templates_dict,
                         record_dir,
                         median_split_dataset = None, # split used for training of the score model 
-                        mode = 'raw_score', # ['raw_score', 'rank'] compute the score difference based on raw or ranked mean prediction
+                        mode = 'raw', # ['raw', 'rank'] compute the score difference based on raw or ranked mean prediction
                         project_root = '/lotterlab/users/khoebel/xray_generalization'
                         ):
     # sort the splits list s.t. the median_split_dataset (if defined) is first
@@ -23,6 +23,11 @@ def create_score_labels(dataset,
         assert (median_split_dataset in splits), 'median split dataset needs to be in splits list'
         splits.insert(0, splits.pop(splits.index(median_split_dataset)))
     # print(splits)
+
+    if path_sign == 'effusion':
+        pred_col_name = 'Pred_Pleural '+path_sign.capitalize()
+    else:
+        pred_col_name = 'Pred_'+path_sign.capitalize()
 
     for split in splits:
         dataset_pred_dfs = list()
@@ -37,10 +42,11 @@ def create_score_labels(dataset,
             
             # concatenate the prediction dataframes for all versions of the model
             temp_df = pd.concat(temp_df_list,axis=1, ignore_index=False)
-            assert temp_df['Pred_'+path_sign.capitalize()].shape[1]==3, 'prediction columns do not have the same name'
+            
+            assert temp_df[pred_col_name].shape[1]==3, 'prediction columns do not have the same name'
             
             # average predictions
-            temp_df['mean_Pred_'+model_train_dataset] = temp_df['Pred_'+path_sign.capitalize()].mean(axis=1)
+            temp_df['mean_Pred_'+model_train_dataset] = temp_df[pred_col_name].mean(axis=1)
             
             # remove duplicate columns
             temp_df = temp_df.loc[:,~temp_df.columns.duplicated()].copy()
@@ -55,7 +61,7 @@ def create_score_labels(dataset,
         assert all(order_comparison)
         dataset_pred_df = pd.concat(dataset_pred_dfs, axis=1)
         dataset_pred_df = dataset_pred_df.loc[:,~dataset_pred_df.columns.duplicated()].copy() # remove duplicate columns
-        if mode == 'raw_score': 
+        if mode == 'raw': 
             dataset_pred_df['Score_Diff'] = dataset_pred_df['mean_Pred_cxp'] - dataset_pred_df['mean_Pred_mmc'] # calculate score difference (cxp - mmc)
         elif mode == 'rank':
             dataset_pred_df['mmc_rank'] = dataset_pred_df['mean_Pred_mmc'].rank(pct=True, ascending=True)
@@ -112,10 +118,12 @@ if __name__ == "__main__":
         path_templates_dict = {'pred': 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/pred_{0}-{3}_df.csv',
                              'dataset': 'data/splits/{0}/{1}/{4}/{2}{3}.csv',
                              'save': 'data/splits/{0}/{1}/{2}/{3}{4}.csv'
+                             # 'save': 'data/splits/{0}/{1}/{2}_raw/{3}{4}.csv'
                              }
       
         train_split = str(0.7)
-        path_sign = 'pneumothorax'
+        prediction_target = 'pathology'
+        path_sign = 'pneumonia'# 'pneumothorax'
 
 
         model_names_dict = {'cxp': ['cxp_densenet_pretrained_v2-best',
@@ -127,11 +135,12 @@ if __name__ == "__main__":
 
 
         splits = ['test', 'val']
-        prediction_target = 'pathology'
-        mode = 'rank'
-
+        median_split_dataset = 'test'
+        mode = 'rank' # 'rank', 'raw'
         
-        '''project_root = '/lotterlab/users/khoebel/xray_generalization'
+
+        '''
+        project_root = '/lotterlab/users/khoebel/xray_generalization'
 
         path_templates_dict = {'pred': 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/pred_{0}-{3}_df.csv',
                               'dataset': 'data/splits/{0}/{1}/{4}/{2}{3}.csv',
@@ -149,11 +158,15 @@ if __name__ == "__main__":
                                     'mmc_densenet_pretrained_0.35_seed_1-best', 
                                     'mmc_densenet_pretrained_0.35_seed_2-best']}
 
-        splits = ['test', 'val', 'train_score']'''
+        splits = ['test', 'val', 'train_score']
+        mode = 'rank'
+        median_split_dataset = 'train_score'
+        '''
 
         for dataset in ['cxp', 'mmc']:
-        
-            record_dir = os.path.join(project_root, 'data','splits', dataset, train_split, path_sign)
+            record_dir = os.path.join(project_root,'data/splits/{0}/{1}/{2}_raw'.format(dataset,train_split,path_sign))
+            os.makedirs(record_dir,exist_ok=True)
+            # record_dir = os.path.join(project_root, 'data','splits', dataset, train_split, path_sign)
             print(record_dir)
             create_score_labels(dataset,
                         path_sign,
@@ -163,7 +176,7 @@ if __name__ == "__main__":
                         model_names_dict, # contains the names of the all model versions 
                         path_templates_dict,
                         record_dir,
-                        median_split_dataset = 'val',
-                        mode = 'rank',
+                        median_split_dataset=median_split_dataset,
+                        mode = mode,
                         project_root = '/lotterlab/users/khoebel/xray_generalization'
                         )
