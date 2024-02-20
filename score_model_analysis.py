@@ -18,31 +18,39 @@ sys.path.append('../torchxrayvision/')
 import torchxrayvision as xrv
 
 
-def compute_mean_image(file_paths, histogram=True, hist_range=(-1024,1024)):
+def compute_mean_image(file_paths, histogram=True, hist_range=(-1024,1024), n_bins=100):
     av_im = None
     count = 0
     
     if histogram:
         av_hist = None
         
-    for f in file_paths:
-        img = perform_xrv_preprocessing(f)
-        if av_im is None:
-            av_im = img
-        av_im = (av_im * count + img) / (count + 1)
-        count += 1
-        
-        if histogram: 
-            if av_hist is None:
-                av_hist = np.asarray(np.histogram(img, bins=500, range=hist_range))
-            else:
-                av_hist[0] = av_hist[0]+np.histogram(img, bins=500, range=hist_range)[0]
+    for f in tqdm.tqdm(file_paths):
+        try:
+            img = perform_xrv_preprocessing(f)
+            if av_im is None:
+                av_im = img
+            av_im = (av_im * count + img) / (count + 1)
+            count += 1
+            
+            if histogram: 
+                if av_hist is None:
+                    av_hist = np.asarray(np.histogram(img, bins=n_bins, range=hist_range))
+                else:
+                    av_hist[0] = av_hist[0]+np.histogram(img, bins=n_bins, range=hist_range)[0]
+        except:
+            pass
     if histogram:
         av_hist[0] = av_hist[0]/count
         return av_im[0,:,:], av_hist
     else:
         return av_im[0,:,:]
     
+
+def compute_center_vals(bins):
+    center = np.asarray([(bins[i]+bins[i+1])/ 2 for i in range(len(bins)-1)])
+    return center
+
 
 def compute_feature_frequency(sorted_subgroup_df, feature, n_bins):
     feature_values = [x for x in sorted_subgroup_df[feature].unique() if str(x)!='nan']

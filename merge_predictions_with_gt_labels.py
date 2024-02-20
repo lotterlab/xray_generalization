@@ -54,7 +54,7 @@ def load_pred_df(model_name, dataset_name, split, checkpoint_name='best', merge_
             tag += f'-window{window_width}'
         if resize_factor:
             tag += f'-initresize{resize_factor}_midcrop'
-    pred_path = os.path.join(PROJECT_DIR, 'prediction_dfs', model_name + '-' + checkpoint_name, dataset + '-' + split +'.csv')
+    pred_path = os.path.join(PROJECT_DIR, 'prediction_dfs', model_name + '-' + checkpoint_name, dataset_name + '-' + split +'.csv')
     # os.path.join(PROJECT_DIR + 'prediction_dfs', model_name + '-best', dataset_name + '-' + split + tag + '.csv')      #load pred df
     pred_df = pd.read_csv(pred_path)
 
@@ -136,16 +136,16 @@ def merge_predictions_with_gt(PROJECT_DIR:str,
 if __name__ == '__main__':
 
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+    
+     # .35 score model
+    
+    '''
     prediction_mode = 'higher_score' # 'higher_score', 'pathology'
     
     splits = ['val', 'test'] # 'train_score'
 
     model_keys= ['mmc', 'cxp']
-     # .35 score model
-    
-    '''
-    
 
     model_name_dict = {'mmc': ['mmc_score_0.35_seed_1'], # list of all names of models for inference
                        'cxp': ['cxp_score_0.35_seed_1']
@@ -159,29 +159,166 @@ if __name__ == '__main__':
 
     # .7 score model
     
-    model_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/pneumothorax",
-                      'cxp': "/lotterlab/users/khoebel/xray_generalization/models/cxp/0.7/pneumothorax"
-                      }
+    '''model_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/effusion",
+                      'cxp': "/lotterlab/users/khoebel/xray_generalization/models/cxp/0.7/effusion"
+                      }'''
     
 
-    model_name_dict = {'mmc': ['mmc_score_0.7_seed_1'], # list of all names of models for inference
-                       'cxp': ['cxp_score_0.7_seed_1']
-                       }
+    '''model_name_dict = {'mmc': ['mmc_score_0.7_seed_1_HPF1',
+                               'mmc_score_0.7_seed_1_HPF2', 
+                                'mmc_score_0.7_seed_1_LPF150',
+                                'mmc_score_0.7_seed_1_LPF200',
+                                'mmc_score_0.7_seed_1_LPF300'
+                                ]
+                                
+                                , # list of all names of models for inference
+                            'cxp': ['cxp_score_0.7_seed_1_HPF1',
+                                'cxp_score_0.7_seed_1_HPF2', 
+                                'cxp_score_0.7_seed_1_LPF150',
+                                'cxp_score_0.7_seed_1_LPF200',
+                                'cxp_score_0.7_seed_1_LPF300'
+                                ]
+                                }
+                      
     
 
     project_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/data/splits/mmc/0.7/pneumothorax",
                         'cxp': "/lotterlab/users/khoebel/xray_generalization/data/splits/cxp/0.7/pneumothorax"
-                        }
-
-    # loop through project directories (i.e., datasets to run prediction on)
-    for dataset in ['cxp', 'mmc']:
-        PROJECT_DIR = project_dir_dict[dataset]
-        print(PROJECT_DIR)
-        merge_predictions_with_gt(PROJECT_DIR=PROJECT_DIR,
-                          model_keys = model_keys, 
-                          model_name_dict=model_name_dict,
-                          splits=splits,
-                          prediction_mode=prediction_mode,
-                          checkpoint_name='best'
-                          )
+                        }'''
     
+
+
+    # 0.5 pathology models 
+    '''
+    prediction_mode = 'pathology' # 'higher_score', 'pathology'
+    
+    splits = ['test']# ['train_score','val', 'test'] # 'train_score'
+
+    model_keys= ['mmc', 'cxp']
+
+    model_name_dict = {'mmc': ['mmc_densenet_pretrained_0.5_seed_0',
+                               'mmc_densenet_pretrained_0.5_seed_1', 
+                                'mmc_densenet_pretrained_0.5_seed_2'
+                                ]
+                                , 
+                            'cxp': ['cxp_densenet_pretrained_0.5_seed_0',
+                                'cxp_densenet_pretrained_0.5_seed_1', 
+                                'cxp_densenet_pretrained_0.5_seed_2'
+                                ]
+                                }
+                      
+    
+
+    project_dir_dict = {'mmc':"/lotterlab/users/khoebel/xray_generalization/data/splits/mmc/0.5/pathology",
+                        'cxp': "/lotterlab/users/khoebel/xray_generalization/data/splits/cxp/0.5/pathology"
+                        }
+                        
+    '''
+
+    # .5 score models
+    
+    '''model_name_dict = {'mmc': [# 'mmc_score_0.5_seed_1',
+                               'mmc_score_0.5_seed_1_HPF1',
+                               'mmc_score_0.5_seed_1_HPF2',
+                               'mmc_score_0.5_seed_1_HPF5',
+                               'mmc_score_0.5_seed_1_HPF10',
+                               'mmc_score_0.5_seed_1_HPF25',
+                               'mmc_score_0.5_seed_1_HPF50',
+                               'mmc_score_0.5_seed_1_HPF75'
+                                ]
+                                
+                                , # list of all names of models for inference
+                            'cxp': [# 'cxp_score_0.5_seed_1',
+                                    'cxp_score_0.5_seed_1_HPF1',
+                               'cxp_score_0.5_seed_1_HPF2',
+                               'cxp_score_0.5_seed_1_HPF5',
+                               'cxp_score_0.5_seed_1_HPF10',
+                               'cxp_score_0.5_seed_1_HPF25',
+                               'cxp_score_0.5_seed_1_HPF50',
+                               'cxp_score_0.5_seed_1_HPF75'
+                                ]
+                                }'''
+
+    
+    
+    model_keys= ['mmc', 'cxp']  
+    prediction_mode = 'higher_score'  
+
+    splits = ['val', 'test']             
+    for seed in ['2', '3']:
+        for target_pathology in ['pneumothorax','pneumonia','effusion']:
+
+            project_dir_dict = {'mmc':os.path.join("/lotterlab/users/khoebel/xray_generalization/data/splits/mmc/0.5", target_pathology),
+                                'cxp':os.path.join( "/lotterlab/users/khoebel/xray_generalization/data/splits/cxp/0.5", target_pathology)
+                        }
+            '''model_name_dict = {'mmc': [# 'mmc_score_0.5_seed_1',
+                               f'mmc_score_0.5_seed_{seed}_HPF1',
+                               f'mmc_score_0.5_seed_{seed}_HPF2',
+                               f'mmc_score_0.5_seed_{seed}_HPF5',
+                               f'mmc_score_0.5_seed_{seed}_HPF10',
+                               f'mmc_score_0.5_seed_{seed}_HPF25',
+                               f'mmc_score_0.5_seed_{seed}_HPF50',
+                               f'mmc_score_0.5_seed_{seed}_HPF75'
+                                ]
+                                
+                                , # list of all names of models for inference
+                            'cxp': [# 'cxp_score_0.5_seed_1',
+                                    f'cxp_score_0.5_seed_{seed}_HPF1',
+                               f'cxp_score_0.5_seed_{seed}_HPF2',
+                               f'cxp_score_0.5_seed_{seed}_HPF5',
+                               f'cxp_score_0.5_seed_{seed}_HPF10',
+                               f'cxp_score_0.5_seed_{seed}_HPF25',
+                               f'cxp_score_0.5_seed_{seed}_HPF50',
+                               f'cxp_score_0.5_seed_{seed}_HPF75'
+                                ]
+                                }'''
+            
+            model_name_dict = {'mmc': [f'mmc_score_0.5_seed_{seed}_randomize'], 
+                               'cxp': [f'cxp_score_0.5_seed_{seed}_randomize']
+            }   
+                # loop through project directories (i.e., datasets to run prediction on)
+            for dataset in ['cxp', 'mmc']:
+                PROJECT_DIR = project_dir_dict[dataset]
+                print(PROJECT_DIR)
+                merge_predictions_with_gt(PROJECT_DIR=PROJECT_DIR,
+                                model_keys = model_keys, 
+                                model_name_dict=model_name_dict,
+                                splits=splits,
+                                prediction_mode=prediction_mode,
+                                checkpoint_name='best'
+                                )
+    
+
+    '''model_keys= ['mmc', 'cxp']  
+    prediction_mode = 'higher_score'  
+
+    splits = ['val', 'test']             
+    for seed in ['2', '3']:
+        for target_pathology in ['pneumothorax','pneumonia','effusion']:
+
+            project_dir_dict = {'mmc':os.path.join("/lotterlab/users/khoebel/xray_generalization/data/splits/mmc/0.5", target_pathology),
+                                'cxp':os.path.join( "/lotterlab/users/khoebel/xray_generalization/data/splits/cxp/0.5", target_pathology)
+                                }
+
+            for model_target_pathology in ['pneumothorax', 'pneumonia','effusion']:
+                if model_target_pathology != target_pathology:
+
+                    model_name_dict = {'mmc': [f'{model_target_pathology}_mmc_score_0.5_seed_{seed}'],
+                        'cxp': [f'{model_target_pathology}_cxp_score_0.5_seed_{seed}']}
+                    
+                else:
+                    model_name_dict = {'mmc': [f'mmc_score_0.5_seed_{seed}'],
+                        'cxp': [f'cxp_score_0.5_seed_{seed}']}
+        
+                    # loop through project directories (i.e., datasets to run prediction on)
+                for dataset in ['cxp', 'mmc']:
+                    PROJECT_DIR = project_dir_dict[dataset]
+                    print(PROJECT_DIR)
+                    merge_predictions_with_gt(PROJECT_DIR=PROJECT_DIR,
+                                    model_keys = model_keys, 
+                                    model_name_dict=model_name_dict,
+                                    splits=splits,
+                                    prediction_mode=prediction_mode,
+                                    checkpoint_name='best'
+                                    )
+    '''

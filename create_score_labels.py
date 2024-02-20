@@ -110,61 +110,64 @@ def create_score_labels(dataset,
 
 
 if __name__ == "__main__":
-        
+    
+    '''
+    project_root = '/lotterlab/users/khoebel/xray_generalization'
 
-        project_root = '/lotterlab/users/khoebel/xray_generalization'
-
-
-        path_templates_dict = {'pred': 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/pred_{0}-{3}_df.csv',
-                             'dataset': 'data/splits/{0}/{1}/{4}/{2}{3}.csv',
-                             'save': 'data/splits/{0}/{1}/{2}/{3}{4}.csv'
-                             # 'save': 'data/splits/{0}/{1}/{2}_raw/{3}{4}.csv'
-                             }
-      
-        train_split = str(0.7)
-        prediction_target = 'pathology'
-        path_sign = 'pneumonia'# 'pneumothorax'
-
-
-        model_names_dict = {'cxp': ['cxp_densenet_pretrained_v2-best',
-                                   'cxp_densenet_pretrained_v3-best',
-                                   'cxp_densenet_pretrained_v4-best'],
-                           'mmc': ['mimic_densenet_pretrained_v2-best',
-                                   'mimic_densenet_pretrained_v3-best',
-                                   'mimic_densenet_pretrained_v4-best']}
+    
+    path_templates_dict = {'pred': 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/pred_{0}-{3}_df.csv',
+                            'dataset': 'data/splits/{0}/{1}/{4}/{2}{3}.csv',
+                            'save': 'data/splits/{0}/{1}/{2}/{3}{4}.csv'
+                            # 'save': 'data/splits/{0}/{1}/{2}_raw/{3}{4}.csv'
+                            }
+    
+    train_split = str(0.7)
+    prediction_target = 'pathology'
+    path_sign = 'pneumonia'# 'pneumothorax'
 
 
-        splits = ['test', 'val']
-        median_split_dataset = 'test'
-        mode = 'rank' # 'rank', 'raw'
-        
+    model_names_dict = {'cxp': ['cxp_densenet_pretrained_v2-best',
+                                'cxp_densenet_pretrained_v3-best',
+                                'cxp_densenet_pretrained_v4-best'],
+                        'mmc': ['mimic_densenet_pretrained_v2-best',
+                                'mimic_densenet_pretrained_v3-best',
+                                'mimic_densenet_pretrained_v4-best']}
 
-        '''
-        project_root = '/lotterlab/users/khoebel/xray_generalization'
 
-        path_templates_dict = {'pred': 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/pred_{0}-{3}_df.csv',
-                              'dataset': 'data/splits/{0}/{1}/{4}/{2}{3}.csv',
-                              'save': 'data/splits/{0}/{1}/{2}/{3}{4}.csv'
-                              }
-        
-        train_split = str(0.35)
-        path_sign = 'pneumothorax'
-        prediction_target = 'pathology'
+    splits = ['test', 'val']
+    median_split_dataset = 'test'
+    mode = 'rank' # 'rank', 'raw'
+    '''
 
-        model_names_dict = {'cxp': ['cxp_densenet_pretrained_0.35-best', 
-                                    'cxp_densenet_pretrained_0.35_seed_1-best', 
-                                    'cxp_densenet_pretrained_0.35_seed_1-best'], 
-                            'mmc': ['mmc_densenet_pretrained_0.35-best', 
-                                    'mmc_densenet_pretrained_0.35_seed_1-best', 
-                                    'mmc_densenet_pretrained_0.35_seed_2-best']}
+    
+    project_root = '/lotterlab/users/khoebel/xray_generalization'
 
-        splits = ['test', 'val', 'train_score']
-        mode = 'rank'
-        median_split_dataset = 'train_score'
-        '''
+    path_templates_dict = {'pred': 'data/splits/{0}/{1}/{4}/prediction_dfs/{2}/pred_{0}-{3}_df.csv',
+                            'dataset': 'data/splits/{0}/{1}/{4}/{2}{3}.csv',
+                            'save': 'data/splits/{0}/{1}/{2}/{3}{4}.csv'
+                            }
+    
+    train_split = str(0.5)
+    # path_sign = 'pneumothorax'
+    prediction_target = 'pathology'
 
-        for dataset in ['cxp', 'mmc']:
-            record_dir = os.path.join(project_root,'data/splits/{0}/{1}/{2}_raw'.format(dataset,train_split,path_sign))
+    model_names_dict = {'cxp': ['cxp_densenet_pretrained_0.5_seed_0-best', 
+                                'cxp_densenet_pretrained_0.5_seed_1-best', 
+                                'cxp_densenet_pretrained_0.5_seed_2-best'
+                                ], 
+                        'mmc': ['mmc_densenet_pretrained_0.5_seed_0-best', 
+                                'mmc_densenet_pretrained_0.5_seed_1-best', 
+                                'mmc_densenet_pretrained_0.5_seed_2-best'
+                                ]
+                                }
+
+    splits = ['test', 'val', 'train_score']
+    mode = 'rank'
+    median_split_dataset = 'train_score'
+    
+    for path_sign in ['pneumonia']: # ['pneumothorax', 'pneumonia', 'effusion']:
+        for dataset in ['mmc']: # ['cxp', 'mmc']:
+            record_dir = os.path.join(project_root,'data/splits/{0}/{1}/{2}'.format(dataset,train_split,path_sign))
             os.makedirs(record_dir,exist_ok=True)
             # record_dir = os.path.join(project_root, 'data','splits', dataset, train_split, path_sign)
             print(record_dir)

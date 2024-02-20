@@ -97,18 +97,20 @@ def load_cam_model(orig_model_path):
 
 
 # TODO: add some config of who ran etc (pycrumbs)
-@tracked(directory_parameter='record_dir')
+# @tracked(directory_parameter='record_dir')
 def run_cam_generation(model_name, model_path, train_split, cam_dataset, prediction_type,
-                       pred_label, cam_split='val', n_cams=50,
+                       pred_label, prediction_target, # pathology or pneumonia/pneumothorax etc for score models
+                       cam_split='val', n_cams=50,
                        record_dir=None):
 
     cam_model = load_cam_model(model_path)
 
     # just hard code some stuff for now
-    if prediction_type == 'pathology':
+    '''if prediction_type == 'pathology':
         prediction_target = 'pathology'
     elif prediction_type == 'higher_score':
         prediction_target = 'pneumothorax'
+        '''
 
     # get files to predict
     pred_df = read_prediction_df(cam_dataset, train_split, model_name, cam_split, prediction_target, merge_labels=True)
@@ -125,12 +127,14 @@ def run_cam_generation(model_name, model_path, train_split, cam_dataset, predict
         pdb.set_trace()
 
     # generate and save cams
-    base_out_dir = '/lotterlab/project_data/cxr_generalization/grad_cams/'
+    base_out_dir = f'/lotterlab/project_data/cxr_generalization/grad_cams/{prediction_target}/'
     model_folder = f'{model_name}_{train_split}'
     cam_folder = f'camdata-{cam_dataset}-{cam_split}_pred-{pred_label}'
     out_dir = os.path.join(base_out_dir, model_folder, cam_folder)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
+
+    print(out_dir)
 
     for i, f_path in tqdm.tqdm(enumerate(cam_files), total=len(cam_files)):
         grayscale_cam, cam_on_image = generate_cam_image(cam_model, f_path, target_idx)
@@ -159,20 +163,32 @@ def run_cam_generation(model_name, model_path, train_split, cam_dataset, predict
 
 
 if __name__ == '__main__':
-    model_name = 'mmc_score_0.7_seed_1-best'
-    model_path = '/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/pneumothorax/mmc_score_0.7_seed_1/mimic_ch-densenet-mmc_score_0.7_seed_1-best.pt'
+    
+    # model_path = '/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/pneumothorax/mmc_score_0.7_seed_1/mimic_ch-densenet-mmc_score_0.7_seed_1-best.pt'
     train_split = 0.7
-    cam_dataset = 'mmc'
+    # cam_dataset = 'mmc'
     prediction_type = 'higher_score'
-    pred_label = 'MMC'
+    # pred_label = 'MMC'
     cam_split = 'val'
-
-    # ToDo: move inside function (for pycrumbs documentation)
-    base_out_dir = '/lotterlab/project_data/cxr_generalization/grad_cams/'
-    model_folder = f'{model_name}_{train_split}'
-    cam_folder = f'camdata-{cam_dataset}-{cam_split}_pred-{pred_label}'
-    record_dir = os.path.join(base_out_dir, model_folder, cam_folder)
-
-    run_cam_generation(model_name, model_path, train_split, cam_dataset, prediction_type,
-                       pred_label, cam_split,
-                       record_dir = record_dir)
+    prediction_target = 'effusion'
+    model_path_dict = {'mmc': f'/lotterlab/users/khoebel/xray_generalization/models/mmc/0.7/{prediction_target}/mmc_score_0.7_seed_1/mimic_ch-densenet-mmc_score_0.7_seed_1-best.pt',
+                       'cxp': f'/lotterlab/users/khoebel/xray_generalization/models/cxp/0.7/{prediction_target}/cxp_score_0.7_seed_1/chex-densenet-cxp_score_0.7_seed_1-best.pt'
+    }
+    model_name_dict = {'mmc':'mmc_score_0.7_seed_1-best', 
+                       'cxp':'cxp_score_0.7_seed_1-best'
+    }
+    for cam_dataset in ['cxp', 'mmc']:
+        model_path = model_path_dict[cam_dataset]
+        model_name = model_name_dict[cam_dataset]
+        # ToDo: move inside function (for pycrumbs documentation)
+        base_out_dir = '/lotterlab/project_data/cxr_generalization/grad_cams/'
+        model_folder = f'{model_name}_{train_split}'
+        
+        for pred_label in ['CXP', 'MMC']:
+            cam_folder = f'camdata-{cam_dataset}-{cam_split}_pred-{pred_label}'
+            record_dir = os.path.join(base_out_dir,prediction_target, model_folder, cam_folder)
+            if not os.path.exists:
+                os.makedirs(record_dir)
+            run_cam_generation(model_name, model_path, train_split, cam_dataset, prediction_type,
+                            pred_label, prediction_target,cam_split=cam_split, 
+                            record_dir = record_dir)
