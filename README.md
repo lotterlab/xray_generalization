@@ -40,7 +40,7 @@ To train models on modified images that selectively remove low and high-frequenc
    ```--randomize_pixels```
 
 ### Model Weights
-The weights for trained PPMs and CDMs can be found [here](link to folder with weights).
+The weights for trained PPMs and CDMs can be found [here](https://drive.google.com/drive/folders/1ZofJF11gcurHzc25B9-CDW6a4A6Dnndr?usp=sharing).
 
 ## Analysis
 To replicate part of the analysis presented in the paper, we provide a Jupyter notebook along with the required data files (CXP_Pneumothorax.csv and MMC_Pneumothorax.csv). These spreadsheets are needed for the example analysis illustrated in ```PneumothoraxAnalysis.ipynb```.
